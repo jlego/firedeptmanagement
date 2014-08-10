@@ -9,5 +9,6 @@ from django.template.context import RequestContext
 @login_required
 def search_related(request):
     query = request.GET.get('query', '')   
-    data = {"Firefighter": Firefighter.search(query), "RelationalCompany":RelationalCompany.search(query), "query":query}
-    return render_to_response("directorio.html", RequestContext(request, data))
+    data = {"Firefighter": Firefighter.search(query), "RelationalUSB":RelationalCompany.search_usb(query), "RelationalHospitals":RelationalCompany.search_hospitals(query), "RelationalRescue":RelationalCompany.search_rescue(query), "RelationalBusiness":RelationalCompany.search_business(query), "RelationalOthers":RelationalCompany.search_others(query),
+ "query":query}
+    return render_to_response("addressbook.html", RequestContext(request, data))

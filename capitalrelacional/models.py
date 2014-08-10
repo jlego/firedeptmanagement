@@ -39,16 +39,83 @@ class RelationalCompany(Company):
     @classmethod
     def search(cls, text):
         return cls.objects.filter(
-                           Q(name__icontains=text) | 
-                           Q(address__city__name__icontains=text) |
-                           Q(address__location__icontains=text) |
-                           Q(rif__icontains=text) |
-                           Q(website__icontains=text) |
-                           Q(email__icontains=text) |
-                           Q(observation__icontains=text) 
-        ).order_by("name")
-    
-    
+            Q(name__icontains=text) | 
+            Q(address__city__name__icontains=text) |
+            Q(address__location__icontains=text) |
+            Q(rif__icontains=text) |
+            Q(website__icontains=text) |
+            Q(email__icontains=text) |
+            Q(observation__icontains=text) 
+        ).order_by("name")    
+       
+    @classmethod
+    def search_usb(cls, text):
+        return cls.objects.filter(typecompany='U').filter(
+            Q(name__icontains=text) | 
+            Q(address__city__name__icontains=text) |
+            Q(address__location__icontains=text) |
+            Q(rif__icontains=text) |
+            Q(website__icontains=text) |
+            Q(email__icontains=text) |
+            Q(observation__icontains=text) 
+            ).order_by("name")
+
+    @classmethod
+    def search_hospitals(cls, text):
+        return cls.objects.filter(typecompany='H').filter(
+            Q(name__icontains=text) | 
+            Q(address__city__name__icontains=text) |
+            Q(address__location__icontains=text) |
+            Q(rif__icontains=text) |
+            Q(website__icontains=text) |
+            Q(email__icontains=text) |
+            Q(observation__icontains=text) 
+            ).order_by("name")
+
+    @classmethod
+    def search_rescue(cls, text):
+        return cls.objects.filter(
+            Q(typecompany='T') | 
+            Q(typecompany='R') | 
+            Q(typecompany='C')
+            ).filter(
+            Q(name__icontains=text) | 
+            Q(address__city__name__icontains=text) |
+            Q(address__location__icontains=text) |
+            Q(rif__icontains=text) |
+            Q(website__icontains=text) |
+            Q(email__icontains=text) |
+            Q(observation__icontains=text) 
+            ).order_by("name")
+
+    @classmethod
+    def search_business(cls, text):
+        return cls.objects.filter(
+            Q(typecompany='P') | 
+            Q(typecompany='G')
+            ).filter(
+            Q(name__icontains=text) | 
+            Q(address__city__name__icontains=text) |
+            Q(address__location__icontains=text) |
+            Q(rif__icontains=text) |
+            Q(website__icontains=text) |
+            Q(email__icontains=text) |
+            Q(observation__icontains=text) 
+            ).order_by("name")
+
+    @classmethod
+    def search_others(cls, text):
+        return cls.objects.filter(typecompany='O').filter(
+            Q(name__icontains=text) | 
+            Q(address__city__name__icontains=text) |
+            Q(address__location__icontains=text) |
+            Q(rif__icontains=text) |
+            Q(website__icontains=text) |
+            Q(email__icontains=text) |
+            Q(observation__icontains=text) 
+            ).order_by("name")
+
+
 class Position(models.Model):
     class Meta:
         verbose_name = u"Cargo"

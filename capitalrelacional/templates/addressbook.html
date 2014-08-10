@@ -1,0 +1,281 @@
+{%extends "base.html" %}
+{% load thumbnail %}
+{% block top_menu%}
+{% endblock %}	
+
+{% block content %}
+<form method="get" class ="well form-search">
+  <input type="text" name="query" class="input-large search-query" value="{{query}}"/>		
+  <input type="submit" value="Buscar" class="bnt"/>
+</form>
+<div class="row">
+  <div class="span3 bs-docs-sidebar">
+    <ul class="nav nav-pills nav-stacked">
+      <li class="active"><a href="#firefighters" data-toggle="tab">Bomberos</a></li>
+      <li><a href="#usb" data-toggle="tab">Dependencias USB</a></li>
+      <li><a href="#rescue" data-toggle="tab">Atenci&oacute;n de Emergencias</a></li>
+      <li><a href="#hospitals" data-toggle="tab">Centros Asistenciales</a></li>
+      <li><a href="#business" data-toggle="tab">Empresas</a></li>
+      <li><a href="#others" data-toggle="tab">Otros</a></li>
+    </ul>
+  </div>
+  <div class="span9">
+    <div class="tab-content">
+      {% if query %}
+      <div class="tab-pane active" id="alls">
+      </div>
+      <div class="tab-pane" id="firefighters">
+	{% else %}
+	<div class="tab-pane active" id="firefighters">
+	  {% endif %}
+	  <h2>Bomberos</h2>
+	  {% if Firefighter %}
+	  <table class="table table-striped">
+	    <thead>
+	      <tr>
+		<th>Foto</th>
+		<th>Nombre</th>
+		<th>Contacto</th>
+		<th>Acciones</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      {%for ff in Firefighter%}
+	      <tr>
+		<td>
+		  {%if ff.picture%}
+		  {% thumbnail ff.picture "70x70" crop="center" format="PNG"   as im %}
+		  <img width="{{im.width}}" height="{{im.height}}" src='{{im.url}}'></img>
+		  {% endthumbnail %}
+		  {%endif%}
+		</td>
+		<td>{{ff}}</td>
+		<td>
+		  <ul class="unstyled">
+		    {% if ff.persontelephonenumber_set.all %}
+		    {%for phone in ff.persontelephonenumber_set.all %}
+		    <li>
+		      Tel&eacute;fono: {{phone}}	  
+		    </li>
+		    {%endfor%}
+		    {% else %}
+		    Tel&eacute;fono: 
+		    {% endif %}
+		    <li>Email: {{ff.primary_email}}</li>
+		    <li>Email: {{ff.alternate_email}}</li>
+		  </ul>
+		</td>
+		<td><a href="{% url 'perfil_f' ff_id=ff.id %}">Ver perfil</a></td>
+	      </tr>
+	      {%endfor%}
+	    </tbody>
+	  </table>
+	  {% else %}
+	  No hay Bomberos USB agregados{% if query %} que cumplan la condicion de busqueda{% endif %}.
+	  {% endif %}
+	</div>
+	<div class="tab-pane" id="usb">
+	  <h2>Dependencias USB</h2>
+	  {% if RelationalUSB %}
+	  <table class="table table-striped">
+	    <thead>
+	      <tr>
+		<th>Nombre</th>
+		<th>Contacto</th>
+		<th>Acciones</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      {%for company in RelationalUSB %}
+	      <tr>
+		<td>{{company}}</td>
+		<td>
+		  <ul class="unstyled">
+		    {% if company.companytelephonenumber_set.all %} 
+		    {%for phone in company.companytelephonenumber_set.all %}
+		    <li>
+		      Tel&eacute;fono: {{phone}}
+		    </li>
+		    {%endfor%}
+		    {% else %}
+		    <li>
+		      Tel&eacute;fono:
+		    </li>		    
+		    {% endif %}
+		    <li>Email: {{company.email}}</li>
+		    
+		  </ul>
+		</td>
+		<td></td>
+	      </tr>	
+	      {%endfor%}
+	    </tbody>
+	  </table>
+	  {% else %}
+	  No hay Dependencias USB agregadas{% if query %} que cumplan la condicion de busqueda{% endif %}.
+	  {% endif %}
+	</div>
+	<div class="tab-pane" id="rescue">
+	  <h2>Atenci&oacute;n de Emergencias</h2>
+	  {% if RelationalRescue %}
+	  <table class="table table-striped">
+	    <thead>
+	      <tr>
+		<th>Nombre</th>
+		<th>Contacto</th>
+		<th>Acciones</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      {%for company in RelationalRescue %}
+	      <tr>
+		<td>{{company}}</td>
+		<td>
+		  <ul class="unstyled">
+		    {% if company.companytelephonenumber_set.all %} 
+		    {%for phone in company.companytelephonenumber_set.all %}
+		    <li>
+		      Tel&eacute;fono: {{phone}}
+		    </li>
+		    {%endfor%}
+		    {% else %}
+		    <li>
+		      Tel&eacute;fono:
+		    </li>		    
+		    {% endif %}
+		    <li>Email: {{company.email}}</li>
+		  </ul>
+		</td>
+		<td></td>
+	      </tr>	
+	      {%endfor%}
+	    </tbody>
+	  </table>
+	  {% else %}
+	  No hay Equipos de Atenci&oacute;n de Emerencias agregados{% if query %} que cumplan la condicion de busqueda{% endif %}.
+	  {% endif %}
+	</div>
+	<div class="tab-pane" id="hospitals">
+	  <h2>Centros Asistenciales</h2>
+	  {% if RelationalHospitals %}
+	  <table class="table table-striped">
+	    <thead>
+	      <tr>
+		<th>Nombre</th>
+		<th>Contacto</th>
+		<th>Acciones</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      {%for company in RelationalHospitals %}
+	      <tr>
+		<td>{{company}}</td>
+		<td>
+		  <ul class="unstyled">
+		    {% if company.companytelephonenumber_set.all %} 
+		    {%for phone in company.companytelephonenumber_set.all %}
+		    <li>
+		      Tel&eacute;fono: {{phone}}
+		    </li>
+		    {%endfor%}
+		    {% else %}
+		    <li>
+		      Tel&eacute;fono:
+		    </li>		    
+		    {% endif %}
+		    <li>Email: {{company.email}}</li>
+		  </ul>
+		</td>
+		<td></td>
+	      </tr>	
+	      {%endfor%}
+	    </tbody>
+	  </table>
+	  {% else %}
+	  No hay Centros Asistenciales agregados{% if query %} que cumplan la condicion de busqueda{% endif %}.
+	  {% endif %}
+	</div>
+	<div class="tab-pane" id="business">
+	  <h2>Empresas</h2>
+	  {% if RelationalBusiness %}
+	  <table class="table table-striped">
+	    <thead>
+	      <tr>
+		<th>Nombre</th>
+		<th>Contacto</th>
+		<th>Acciones</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      {%for company in RelationalBusiness%}
+	      <tr>
+		<td>{{company}}</td>
+		<td>
+		  <ul class="unstyled">
+		    {% if company.companytelephonenumber_set.all %} 
+		    {%for phone in company.companytelephonenumber_set.all %}
+		    <li>
+		      Tel&eacute;fono: {{phone}}
+		    </li>
+		    {%endfor%}
+		    {% else %}
+		    <li>
+		      Tel&eacute;fono:
+		    </li>		    
+		    {% endif %}
+		    <li>Email: {{company.email}}</li>
+		  </ul>
+		</td>
+		<td></td>
+	      </tr>	
+	      {%endfor%}	      
+	    </tbody>
+	  </table>
+	  {% else %}
+	  No hay Empresas agregadas{% if query %} que cumplan la condicion de busqueda{% endif %}.
+	  {% endif %}
+	</div>
+	<div class="tab-pane" id="others">
+	  <h2>Otros</h2>
+	  {% if RelationalOthers%}
+	  <table class="table table-striped">
+	    <thead>
+	      <tr>
+		<th>Nombre</th>
+		<th>Contacto</th>
+		<th>Acciones</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      {%for company in RelationalOthers %}
+	      <tr>
+		<td>{{company}}</td>
+		<td>
+		  <ul class="unstyled">
+		    {% if company.companytelephonenumber_set.all %} 
+		    {%for phone in company.companytelephonenumber_set.all %}
+		    <li>
+		      Tel&eacute;fono: {{phone}}
+		    </li>
+		    {%endfor%}
+		    {% else %}
+		    <li>
+		      Tel&eacute;fono:
+		    </li>		    
+		    {% endif %}
+		    <li>Email: {{company.email}}</li>
+		  </ul>
+		</td>
+		<td></td>
+	      </tr>	
+	      {%endfor%}	    
+	    </tbody>
+	  </table>
+	  {% else %}
+	  No hay Otros agregados{% if query %} que cumplan la condicion de busqueda{% endif %}.
+	  {% endif %}
+	</div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
