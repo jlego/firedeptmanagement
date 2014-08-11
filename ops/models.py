@@ -185,7 +185,7 @@ def notify_arrested(sender, instance, created, **kwargs):
     logger.info("Sending Arrest Email")
     if created:
         subject = u"Nuevo Arresto"
-        content = u"%s te ha insertado un nuevo arresto:\n\n%s\n\n%s, este debe ser aprobado por operaciones  e Inspectoria para ser actualizado en tus arrestos" % (unicode(instance.created_by), unicode(instance), unicode(instance.description))
+        content = u"%s te ha insertado un nuevo arresto:\n\n%s\n\n%s, el mismo es aprobado automaticamente. Si consideras que hay un error comunicate de inmediato con Inspectoria. Los detalles del arresto los puedes ver en tu perfil." % (unicode(instance.created_by), unicode(instance), unicode(instance.description))
         send_mail(subject, content, settings.DEFAULT_FROM_EMAIL, [instance.arrested.primary_email,], fail_silently=True)
     else:
         subject = u"Actualización Arrestos"

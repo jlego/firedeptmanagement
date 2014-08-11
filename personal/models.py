@@ -17,6 +17,7 @@ from django.conf import settings
 from datetime import date
 from itertools import chain
 import unidecode
+begin_date = date(2000,12,31)
 
 class Rank(models.Model):
     name = models.CharField(max_length=30)
@@ -115,7 +116,22 @@ class Firefighter(Person):
         arrests_and_payments = list(chain(arrests,payments))
         arrests_and_payments = sorted(arrests_and_payments, key = lambda element: element.date if (element.__class__ == Arrest) else element.start_time.date())
         return arrests_and_payments[::-1]
+
+    def previous_arrests_and_payments(self,year,month):
+        minutes = self.arrests.filter(approved_by_ops=True, approved_by_inspector=True).filter(creation_date__range=[begin_date,date(year,month,1)]).aggregate(Sum('minutes'))['minutes__sum']
+        arrests = minutes if minutes else 0
+        minutes = self.arrests_payments.filter(approved_by_ops=True).filter(creation_date__range=[begin_date,date(year,month,1)]).aggregate(Sum('minutes'))['minutes__sum']
+        payments = minutes if minutes else 0
+        return arrests - payments
+
+    def month_valid_arrests(self,year,month):
+        minutes = self.arrests.filter(approved_by_ops=True, approved_by_inspector=True).filter(creation_date__year=int(year),creation_date__month=int(month)).aggregate(Sum('minutes'))['minutes__sum']
+        return minutes if minutes else 0
     
+    def month_valid_arrests_payments(self,year,month):
+        minutes = self.arrests_payments.filter(approved_by_ops=True).filter(creation_date__year=int(year),creation_date__month=int(month)).aggregate(Sum('minutes'))['minutes__sum']
+        return minutes if minutes else 0
+
     def current_condition_change(self):
         condition_changes =  self.condition_changes.all().select_related('condition').order_by("-date")
         return condition_changes[0] if condition_changes.count() else None

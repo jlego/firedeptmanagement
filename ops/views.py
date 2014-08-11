@@ -4,7 +4,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.forms.formsets import formset_factory
-from ops.models import ServiceVehicle, ServiceAffected, Service, ArrestPayment, ServiceImage
+from ops.models import ServiceVehicle, ServiceAffected, Service, Arrest, ArrestPayment, ServiceImage
 from personal.models import Firefighter
 from common.models import BasePerson, TelephoneNumber, PersonTelephoneNumber
 from django.contrib import messages
@@ -19,9 +19,10 @@ from django.http import HttpResponse
 from itertools import groupby
 from operator import itemgetter
 from django.conf import settings
-
-
+from itertools import chain
 import json
+import csv
+
 @login_required
 def list_services(request):
     services_qs = Service.objects.all()
@@ -53,7 +54,6 @@ def view_service(request, service_id):
 
 @login_required
 def service_upload_image(request, service_id):
-    
     if request.method == 'POST':
         form = ServiceImageForm(request.POST, request.FILES)
         if form.is_valid():
@@ -220,8 +220,6 @@ def plain_statistics(request):
     data = stats_data(request)
     return render_to_response('plain_statistics.html', RequestContext(request, data))
 
-
-
 def stats_data(request):
     truncate_month = connection.ops.date_trunc_sql('month','date')
     summary = Service.objects.filter(date__gt=date(year=2012, month=12, day=31)).extra({'month':truncate_month}).values('month', 'service_type').annotate(Count('service_type')).order_by('-month', 'service_type')
@@ -264,3 +262,39 @@ def month_statistics_detail(request, year, month):
     
     data = {'response_time': response_time_text, 'average_duration': average_duration_text, 'time_in_service': time_in_service_text}
     return HttpResponse(json.dumps(data))
+
+@login_required
+def month_arrests_and_payments(request,year,month):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="arrestos_pagos_mes_'+year+'_'+month+'.csv"'
+    writer = csv.writer(response)
+
+    arrests = Arrest.objects.filter(creation_date__year=int(year),creation_date__month=int(month))
+    payments = ArrestPayment.objects.filter(creation_date__year=int(year),creation_date__month=int(month))
+    arrests_and_payments = list(chain(arrests,payments))
+    arrests_and_payments = sorted(arrests_and_payments, key = lambda element: (element.arrested, element.creation_date) if (element.__class__ == Arrest) else (element.payer, element.creation_date))
+
+    writer.writerow(['Tipo', 'Nombre', 'Ausencia', 'Notifico','Tiempo', 'Aprobado','Agregado por', 'Agregado el'])
+    for element in arrests_and_payments:
+        approved = 'Si' if element.approved_by_ops else 'No'
+        if element.__class__ == Arrest:
+            notified = 'Si' if element.was_notified else 'No'
+            writer.writerow(['Arresto', element.arrested, element.time, notified, element.minutes, approved, element.created_by, element.creation_date.date()])
+        else:
+            writer.writerow(['Pago', element.payer,'N/A','N/A', element.minutes, approved, element.created_by , element.creation_date.date()])
+    
+    return response
+    
+def total_arrests_and_payments(request,year,month):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="arrestos_pagos_total_'+year+'_'+month+'.csv"'
+    writer = csv.writer(response)
+    
+    ffs = Firefighter.objects.all()
+    ffs = [ff for ff in ffs if ff.user.is_active]
+
+    writer.writerow(['Nombre', 'Condicion', 'Previo', 'Arrestos Acumulados', 'Pagos Realizados','Total'])
+    for ff in ffs:
+        writer.writerow([ff, ff.current_condition_change(), ff.previous_arrests_and_payments(int(year),int(month)),ff.month_valid_arrests(int(year),int(month)),ff.month_valid_arrests_payments(int(year),int(month)),ff.total_arrests()])
+    
+    return response

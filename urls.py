@@ -39,8 +39,9 @@ urlpatterns = patterns('',
                        
                        url(r'^arrestos/insertar/$', 'firedeptmanagement.ops.views.insert_arrest', name="insert_arrest"),
                        url(r'^arrestos/insertar/pago/$', 'firedeptmanagement.ops.views.insert_arrest_payment', name="insert_arrest_payment"),
-                       
-                       
+                       url(r'^arrestos/mes/(?P<year>\d+)-(?P<month>\d+)/$', 'firedeptmanagement.ops.views.month_arrests_and_payments', name='month_arrests_and_payments'),
+                       url(r'^arrestos/total/(?P<year>\d+)-(?P<month>\d+)/$', 'firedeptmanagement.ops.views.total_arrests_and_payments', name='total_arrests_and_payments'),
+
                        url(r'^personas/autocompletar/$', 'firedeptmanagement.common.views.autocomplete_person', name="autocomplete_person"),
                        url(r'^bomberos/autocompletar/$', 'firedeptmanagement.personal.views.autocomplete_firefighter', name="autocomplete_firefighter"),
                        url(r'^bomberos/activos/autocompletar/$', 'firedeptmanagement.personal.views.autocomplete_firefighter_active', name="autocomplete_firefighter_active"),
